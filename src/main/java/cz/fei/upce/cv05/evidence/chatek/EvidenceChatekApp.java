@@ -3,24 +3,24 @@ package cz.fei.upce.cv05.evidence.chatek;
 import java.util.Scanner;
 
 public class EvidenceChatekApp {
+    static final int KONEC_PROGRAMU = 0;
+    static final int VYPIS_CHATEK = 1;
+    static final int VYPIS_KONKRETNI_CHATKU = 2;
+    static final int PRIDANI_NAVSTEVNIKU = 3;
+    static final int ODEBRANI_NAVSTEVNIKU = 4;
+    static final int CELKOVA_OBSAZENOST = 5;
+    static final int VYPIS_PRAZDNE_CHATKY = 6;
+
+    static final int VELIKOST_KEMPU = 10;
+    static final int MAX_VELIKOST_CHATKY = 10;
+
+    static Scanner scanner = new Scanner(System.in);
+
+    // Definovani pole podle velikosti kempu (poctu chatek)
+    static int[] chatky = new int[VELIKOST_KEMPU];
 
     public static void main(String[] args) {
         // Konstanty pro definovani jednotlivych operaci (pouze pro cisty kod)
-        final int KONEC_PROGRAMU = 0;
-        final int VYPIS_CHATEK = 1;
-        final int VYPIS_KONKRETNI_CHATKU = 2;
-        final int PRIDANI_NAVSTEVNIKU = 3;
-        final int ODEBRANI_NAVSTEVNIKU = 4;
-        final int CELKOVA_OBSAZENOST = 5;
-        final int VYPIS_PRAZDNE_CHATKY = 6;
-
-        final int VELIKOST_KEMPU = 5;
-        final int MAX_VELIKOST_CHATKY = 10;
-
-        Scanner scanner = new Scanner(System.in);
-
-        // Definovani pole podle velikosti kempu (poctu chatek)
-        int[] chatky = new int[VELIKOST_KEMPU];
         int operace;
 
         do {
@@ -41,13 +41,7 @@ public class EvidenceChatekApp {
             operace = scanner.nextInt();
 
             switch (operace) {
-                case VYPIS_CHATEK -> {
-
-                    // Projdi cele pole od <0, VELIKOST) a vypis kazdy index
-                    for (int i = 0; i < chatky.length; i++) {
-                        System.out.println("Chatka [" + (i + 1) + "] = " + chatky[i]);
-                    }
-                }
+                case VYPIS_CHATEK -> vypisChatek();
 
                 case VYPIS_KONKRETNI_CHATKU -> {
 
@@ -99,25 +93,75 @@ public class EvidenceChatekApp {
                 }
 
                 case ODEBRANI_NAVSTEVNIKU -> {
-                    // TODO
+                    // Ziskani cisla chatky od uzivatele
+                    System.out.print("Zadej cislo chatky: ");
+                    // Odecteni 1 protoze uzivatel cisluje chatky o 1, ale program od 0
+                    int cisloChatky = scanner.nextInt() - 1;
+
+                    // Zaporne nebo cislo vetsi nez je pocet chatek je nevalidni vstup
+                    if (cisloChatky < 0 || cisloChatky >= chatky.length) {
+                        System.err.println("Tato chatka neexistuje");
+                        continue; // Zacni novou iteraci cyklu
+                    }
+
+                    // Ziskani poctu navstevniku, ktere chceme odebrat
+                    System.out.print("Zadej pocet navstevniku pro odebrani: ");
+                    int pocetNavstevniku = scanner.nextInt();
+
+                    // Zaporne cislo nebo prilis velky nevalidni vstup
+                    if (pocetNavstevniku <= 0 || pocetNavstevniku > MAX_VELIKOST_CHATKY) {
+                        System.err.println("Neplatna hodnota pro pocet navstevniku");
+                        continue; // Zacni novou iteraci cyklu
+                    }
+
+                    // Pokud chceme odebrat vice navstevniku nez v chatce aktualne je jedna se o nevalidni vstup
+                    if ((chatky[cisloChatky] - pocetNavstevniku) < 0) {
+                        System.err.println("Prekrocen minimalni pocet navstevniku chatky");
+                        continue; // Zacni novou iteraci cyklu
+                    }
+
+                    // Odeber ubytovane z chatky
+                    chatky[cisloChatky] = chatky[cisloChatky] - pocetNavstevniku;
+                    
+                    System.out.println("Novy pocet navstevniku chatky [" + (cisloChatky + 1) + "] je: " + chatky[cisloChatky]);
                 }
 
-                case CELKOVA_OBSAZENOST -> {
-                    // TODO
-                }
+                case CELKOVA_OBSAZENOST -> celkovaObsazenost();
 
-                case VYPIS_PRAZDNE_CHATKY -> {
-                    // TODO
-                }
+                case VYPIS_PRAZDNE_CHATKY -> vypisPrazdneChatky();
 
-                case KONEC_PROGRAMU -> {
-                    System.out.println("Konec programu");
-                }
+                case KONEC_PROGRAMU -> System.out.println("Konec programu");                
 
-                default -> {
-                    System.err.println("Neplatna volba");
-                }
+                default -> System.err.println("Neplatna volba");
             }
         } while (operace != 0);
+    }
+    
+    private static void vypisPrazdneChatky(){
+        // Projdi cele pole od <0, VELIKOST) a vypis kazdy index prazdne chatky
+        int j = 0;
+        for (int i = 0; i < chatky.length; i++) {
+            if (chatky[i] == 0) {
+                System.out.println("Chatka [" + (i + 1) + "] je prazdna. ");
+                j++;
+            }
+        }
+        if (j == 0)
+            System.out.println("Vsechny chatky jsou obsazeny.");
+    }
+    
+    private static void celkovaObsazenost(){
+        // Projdi cele pole od <0, VELIKOST) a vypis obsazenost
+        int obsazenost = 0;
+        for (int i = 0; i < chatky.length; i++) 
+            obsazenost += chatky[i];
+        System.out.println("Aktualni obsazenost kempu je: " + obsazenost);
+    }
+    
+    private static void vypisChatek(){
+        // Projdi cele pole od <0, VELIKOST) a vypis kazdy index
+        for (int i = 0; i < chatky.length; i++) {
+            System.out.println("Chatka [" + (i + 1) + "] = " + chatky[i]);
+        }
     }
 }
